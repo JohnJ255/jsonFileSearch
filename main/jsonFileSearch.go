@@ -65,20 +65,29 @@ func main() {
 }
 
 func showResultDialog(db *storage.Db, records []storage.CelestyMap) (bool, error) {
-	log.Printf("Показать первые 3 записи на экране? (да/enter=нет). Напишите \"отмена\" если результат не нужно показывать или сохранять")
-	answer, yes, err := terminal.InputConfirm()
-	if err != nil {
-		return false, err
+	n := 3
+	if len(records) < n {
+		n = len(records)
 	}
-	if answer == "отмена" {
-		return true, nil
+	yes := true
+	if n >= 3 {
+		log.Printf("Показать первые %d записи на экране? (да/enter=нет). Напишите \"отмена\" если результат не нужно показывать или сохранять", n)
+		var err error
+		var answer string
+		answer, yes, err = terminal.InputConfirm()
+		if err != nil {
+			return false, err
+		}
+		if answer == "отмена" {
+			return true, nil
+		}
 	}
 	if yes {
-		log.Printf("Результат:\n%s", prepareResult(records[0:3]))
+		log.Printf("Результат:\n%s", prepareResult(records[0:n]))
 	}
 	resultFileName := "output.json"
 	log.Printf("Укажите название файла (или просто нажмите enter чтобы сохранить в %s) или напишите \"отмена\":", resultFileName)
-	answer, err = terminal.InputString()
+	answer, err := terminal.InputString()
 	if err != nil {
 		return false, err
 	}
